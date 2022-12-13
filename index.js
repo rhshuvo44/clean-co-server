@@ -3,7 +3,7 @@ const app = express();
 require("dotenv").config();
 const cors = require("cors");
 const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 app.use(cors());
 app.use(express.json());
@@ -18,8 +18,45 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     client.connect();
-    const servicesCollection = client.db("clean-co").collection("services");
+    const servicesCollection = client.db("clean-co").collection("service");
     console.log("db connect");
+    //! get all service
+    app.get("/get-service", async (req, res) => {
+      const result = await servicesCollection.find().toArray();
+      res.send(result);
+    });
+    app.get("/get-service/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await servicesCollection.findOne(query);
+      res.send(result);
+    });
+    // add new service
+    app.post("/add-service", async (req, res) => {
+      const data = req.body;
+      const result = await servicesCollection.insertOne(data);
+      res.send(data);
+    });
+    // update a service
+    app.put("/update-service/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = { $set: req.body };
+      const result = await servicesCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(result);
+    });
+    // deleted a service
+    app.delete("/deleted-service/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await servicesCollection.deleteOne(query);
+      res.send(result);
+    });
   } finally {
   }
 }
