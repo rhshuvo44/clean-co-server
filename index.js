@@ -19,7 +19,8 @@ async function run() {
   try {
     client.connect();
     const servicesCollection = client.db("clean-co").collection("service");
-    console.log("db connect");
+    const ordersCollection = client.db("clean-co").collection("order");
+
     //! get all service
     app.get("/get-service", async (req, res) => {
       const result = await servicesCollection.find().toArray();
@@ -56,6 +57,12 @@ async function run() {
       const query = { _id: ObjectId(id) };
       const result = await servicesCollection.deleteOne(query);
       res.send(result);
+    });
+    // add new service order
+    app.post("/order", async (req, res) => {
+      const data = req.body;
+      const result = await ordersCollection.insertOne(data);
+      res.send(data);
     });
   } finally {
   }
