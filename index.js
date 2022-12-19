@@ -58,8 +58,15 @@ async function run() {
       const result = await servicesCollection.deleteOne(query);
       res.send(result);
     });
+    // service order filter
+    app.get("/get-order", async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const result = await ordersCollection.find(query).toArray();
+      res.send(result);
+    });
     // add new service order
-    app.post("/order", async (req, res) => {
+    app.post("/add-order", async (req, res) => {
       const data = req.body;
       const result = await ordersCollection.insertOne(data);
       res.send(data);
